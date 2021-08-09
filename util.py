@@ -21,7 +21,7 @@ class Socket_client:
         return detection_result_path, recognition_result_path
 
     def send_to_server(self, filepath):
-        file_head = struct.pack('128sl', bytes(os.path.basename(filepath).encode('utf-8')), os.stat(filepath).st_size)
+        file_head = struct.pack('128sq', bytes(os.path.basename(filepath).encode('utf-8')), os.stat(filepath).st_size)
         self.conn.send(file_head)
         fp = open(filepath, 'rb')
         while 1:
@@ -32,11 +32,11 @@ class Socket_client:
             self.conn.send(data)
 
     def recv_from_server(self):
-        file_info_size = struct.calcsize('128sl')
+        file_info_size = struct.calcsize('128sq')
         buf = self.conn.recv(file_info_size)
         result_path = ''
         if buf:
-            file_name, file_size = struct.unpack('128sl', buf)
+            file_name, file_size = struct.unpack('128sq', buf)
             result_path = os.path.join(str.encode('./output'), file_name.strip(str.encode('\00'))).decode()
             recv_size = 0
             fp = open(result_path, 'wb')
